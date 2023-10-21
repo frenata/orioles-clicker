@@ -5954,6 +5954,7 @@ var $author$project$Main$player = F4(
 					$elm$html$Html$text(name)
 				]));
 	});
+var $elm$html$Html$span = _VirtualDom_node('span');
 var $author$project$Main$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
@@ -5965,8 +5966,14 @@ var $author$project$Main$view = function (model) {
 				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text(
-						$elm$core$String$fromInt(model.score))
+						A2(
+						$elm$html$Html$span,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text(
+								$elm$core$String$fromInt(model.score))
+							]))
 					])),
 				A2($elm$html$Html$hr, _List_Nil, _List_Nil),
 				A4($author$project$Main$player, 'Cedric Mullins', 30, model.score, $author$project$Main$Mullins),

@@ -8,7 +8,7 @@ module Main exposing (..)
 
 import Browser
 import Browser.Events
-import Html exposing (Html, button, div, h1, hr, text)
+import Html exposing (Html, button, div, h1, hr, span, text)
 import Html.Attributes
 import Html.Events exposing (onClick)
 import Json.Decode as Decode
@@ -99,7 +99,7 @@ view model =
     div []
         (if model.score < 100000 then
             [ h1 []
-                [ text (String.fromInt model.score) ]
+                [ span [] [ text (String.fromInt model.score) ] ]
             , hr [] []
             , player "Cedric Mullins" 30 model.score Mullins
             , player "Jordan Westburg" 100 model.score Westburg
