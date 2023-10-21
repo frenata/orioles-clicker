@@ -109,7 +109,7 @@ view model =
             ]
 
          else
-            [ h1 [] [ text "You Win!!!" ] ]
+            [ h1 [] [ span [] [ text "You Win!!!" ] ] ]
         )
 
 
