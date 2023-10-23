@@ -8,7 +8,7 @@ module Main exposing (..)
 
 import Browser
 import Browser.Events
-import Html exposing (Html, button, div, h1, hr, span, text)
+import Html exposing (Html, button, div, h1, h3, hr, span, text)
 import Html.Attributes
 import Html.Events exposing (onClick)
 import Json.Decode as Decode
@@ -30,12 +30,13 @@ main =
 type alias Model =
     { score : Int
     , hitsPerSecond : Int
+    , message : String
     }
 
 
 init : Int -> ( Model, Cmd Msg )
 init starting_score =
-    ( { score = starting_score, hitsPerSecond = 0 }, Cmd.none )
+    ( { score = starting_score, hitsPerSecond = 0, message = "Press 'Up' to score a run!" }, Cmd.none )
 
 
 
@@ -46,71 +47,64 @@ type Msg
     = NumberUp
     | Nothing
     | Tick Time.Posix
-    | Mullins
-    | Westburg
-    | Hayes
-    | Santander
-    | Rutschman
+    | NewHitter Int Int
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NumberUp ->
-            ( { score = model.score + 1, hitsPerSecond = model.hitsPerSecond }, Cmd.none )
+            ( { model | score = model.score + 1 }, Cmd.none )
 
         Nothing ->
             ( model, Cmd.none )
 
         Tick _ ->
             if model.score < 100000 then
-                ( { score = model.score + model.hitsPerSecond, hitsPerSecond = model.hitsPerSecond }, Cmd.none )
+                ( { model
+                    | score = model.score + model.hitsPerSecond
+                    , message =
+                        if model.score > 30 then
+                            "A player is available -- click on them to hit for you!"
+
+                        else if model.score == 0 then
+                            "Press 'Up' to score a run!"
+
+                        else
+                            ""
+                  }
+                , Cmd.none
+                )
 
             else
-                ( { score = 100000, hitsPerSecond = 0 }, Cmd.none )
+                ( { score = 100000, hitsPerSecond = 0, message = "You Win!" }, Cmd.none )
 
-        Mullins ->
-            ( { score = model.score, hitsPerSecond = model.hitsPerSecond + 1 }, Cmd.none )
-
-        Westburg ->
-            ( { model | hitsPerSecond = model.hitsPerSecond + 3 }, Cmd.none )
-
-        Hayes ->
-            ( { model | hitsPerSecond = model.hitsPerSecond + 10 }, Cmd.none )
-
-        Santander ->
-            ( { model | hitsPerSecond = model.hitsPerSecond + 30 }, Cmd.none )
-
-        Rutschman ->
-            ( { model | hitsPerSecond = model.hitsPerSecond + 50 }, Cmd.none )
+        NewHitter cost hits ->
+            ( { model | hitsPerSecond = model.hitsPerSecond + hits, score = model.score - cost }, Cmd.none )
 
 
 
 -- VIEW
 
 
-player : String -> Int -> Int -> Msg -> Html Msg
-player name minimum score msg =
-    button [ onClick msg, Html.Attributes.disabled (score < minimum) ] [ text name ]
+player : String -> Int -> Int -> Int -> Html Msg
+player name cost hits score =
+    button [ onClick (NewHitter cost hits), Html.Attributes.disabled (score < cost) ] [ text name ]
 
 
 view : Model -> Html Msg
 view model =
     div []
-        (if model.score < 100000 then
-            [ h1 []
-                [ span [] [ text (String.fromInt model.score) ] ]
-            , hr [] []
-            , player "Cedric Mullins" 30 model.score Mullins
-            , player "Jordan Westburg" 100 model.score Westburg
-            , player "Austin Hayes" 200 model.score Hayes
-            , player "Anthony Santander" 400 model.score Santander
-            , player "Adley Rutschman" 1000 model.score Rutschman
-            ]
-
-         else
-            [ h1 [] [ span [] [ text "You Win!!!" ] ] ]
-        )
+        [ h1 []
+            [ span [] [ text (String.fromInt model.score) ] ]
+        , hr [] []
+        , player "Cedric Mullins" 30 1 model.score
+        , player "Jordan Westburg" 100 3 model.score
+        , player "Austin Hayes" 200 10 model.score
+        , player "Anthony Santander" 400 30 model.score
+        , player "Adley Rutschman" 1000 50 model.score
+        , h3 [] [ span [] [ text model.message ] ]
+        ]
 
 
 

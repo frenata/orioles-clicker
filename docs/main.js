@@ -5209,7 +5209,7 @@ var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (starting_score) {
 	return _Utils_Tuple2(
-		{hitsPerSecond: 0, score: starting_score},
+		{hitsPerSecond: 0, message: 'Press \'Up\' to score a run!', score: starting_score},
 		$elm$core$Platform$Cmd$none);
 };
 var $elm$json$Json$Decode$int = _Json_decodeInt;
@@ -5862,54 +5862,41 @@ var $author$project$Main$update = F2(
 		switch (msg.$) {
 			case 'NumberUp':
 				return _Utils_Tuple2(
-					{hitsPerSecond: model.hitsPerSecond, score: model.score + 1},
+					_Utils_update(
+						model,
+						{score: model.score + 1}),
 					$elm$core$Platform$Cmd$none);
 			case 'Nothing':
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			case 'Tick':
 				return (model.score < 100000) ? _Utils_Tuple2(
-					{hitsPerSecond: model.hitsPerSecond, score: model.score + model.hitsPerSecond},
+					_Utils_update(
+						model,
+						{
+							message: (model.score > 30) ? 'A player is available -- click on them to hit for you!' : ((!model.score) ? 'Press \'Up\' to score a run!' : ''),
+							score: model.score + model.hitsPerSecond
+						}),
 					$elm$core$Platform$Cmd$none) : _Utils_Tuple2(
-					{hitsPerSecond: 0, score: 100000},
-					$elm$core$Platform$Cmd$none);
-			case 'Mullins':
-				return _Utils_Tuple2(
-					{hitsPerSecond: model.hitsPerSecond + 1, score: model.score},
-					$elm$core$Platform$Cmd$none);
-			case 'Westburg':
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{hitsPerSecond: model.hitsPerSecond + 3}),
-					$elm$core$Platform$Cmd$none);
-			case 'Hayes':
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{hitsPerSecond: model.hitsPerSecond + 10}),
-					$elm$core$Platform$Cmd$none);
-			case 'Santander':
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{hitsPerSecond: model.hitsPerSecond + 30}),
+					{hitsPerSecond: 0, message: 'You Win!', score: 100000},
 					$elm$core$Platform$Cmd$none);
 			default:
+				var cost = msg.a;
+				var hits = msg.b;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{hitsPerSecond: model.hitsPerSecond + 50}),
+						{hitsPerSecond: model.hitsPerSecond + hits, score: model.score - cost}),
 					$elm$core$Platform$Cmd$none);
 		}
 	});
-var $author$project$Main$Hayes = {$: 'Hayes'};
-var $author$project$Main$Mullins = {$: 'Mullins'};
-var $author$project$Main$Rutschman = {$: 'Rutschman'};
-var $author$project$Main$Santander = {$: 'Santander'};
-var $author$project$Main$Westburg = {$: 'Westburg'};
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
+var $elm$html$Html$h3 = _VirtualDom_node('h3');
 var $elm$html$Html$hr = _VirtualDom_node('hr');
+var $author$project$Main$NewHitter = F2(
+	function (a, b) {
+		return {$: 'NewHitter', a: a, b: b};
+	});
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$html$Html$Attributes$boolProperty = F2(
@@ -5940,14 +5927,15 @@ var $elm$html$Html$Events$onClick = function (msg) {
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Main$player = F4(
-	function (name, minimum, score, msg) {
+	function (name, cost, hits, score) {
 		return A2(
 			$elm$html$Html$button,
 			_List_fromArray(
 				[
-					$elm$html$Html$Events$onClick(msg),
+					$elm$html$Html$Events$onClick(
+					A2($author$project$Main$NewHitter, cost, hits)),
 					$elm$html$Html$Attributes$disabled(
-					_Utils_cmp(score, minimum) < 0)
+					_Utils_cmp(score, cost) < 0)
 				]),
 			_List_fromArray(
 				[
@@ -5959,7 +5947,7 @@ var $author$project$Main$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
 		_List_Nil,
-		(model.score < 100000) ? _List_fromArray(
+		_List_fromArray(
 			[
 				A2(
 				$elm$html$Html$h1,
@@ -5976,15 +5964,13 @@ var $author$project$Main$view = function (model) {
 							]))
 					])),
 				A2($elm$html$Html$hr, _List_Nil, _List_Nil),
-				A4($author$project$Main$player, 'Cedric Mullins', 30, model.score, $author$project$Main$Mullins),
-				A4($author$project$Main$player, 'Jordan Westburg', 100, model.score, $author$project$Main$Westburg),
-				A4($author$project$Main$player, 'Austin Hayes', 200, model.score, $author$project$Main$Hayes),
-				A4($author$project$Main$player, 'Anthony Santander', 400, model.score, $author$project$Main$Santander),
-				A4($author$project$Main$player, 'Adley Rutschman', 1000, model.score, $author$project$Main$Rutschman)
-			]) : _List_fromArray(
-			[
+				A4($author$project$Main$player, 'Cedric Mullins', 30, 1, model.score),
+				A4($author$project$Main$player, 'Jordan Westburg', 100, 3, model.score),
+				A4($author$project$Main$player, 'Austin Hayes', 200, 10, model.score),
+				A4($author$project$Main$player, 'Anthony Santander', 400, 30, model.score),
+				A4($author$project$Main$player, 'Adley Rutschman', 1000, 50, model.score),
 				A2(
-				$elm$html$Html$h1,
+				$elm$html$Html$h3,
 				_List_Nil,
 				_List_fromArray(
 					[
@@ -5993,7 +5979,7 @@ var $author$project$Main$view = function (model) {
 						_List_Nil,
 						_List_fromArray(
 							[
-								$elm$html$Html$text('You Win!!!')
+								$elm$html$Html$text(model.message)
 							]))
 					]))
 			]));
