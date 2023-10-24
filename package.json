@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "start": "parcel src/index.html",
-    "build": "parcel build src/index.html --dist-dir docs"
+    "build": "parcel build src/index.html --dist-dir docs --no-optimize --no-content-hash --no-scope-hoist --no-cache --public-url /orioles-clicker"
   },
   "devDependencies": {
     "@parcel/transformer-elm": "~2.10.0",
